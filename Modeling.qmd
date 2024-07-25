@@ -1,0 +1,185 @@
+---
+title: "ST558 Final Project Model Fitting - Lee Worthington"
+format: html
+editor: visual
+---
+
+# Intro
+
+> ### Data Overview
+> The dataset used for this analysis is derived from the Behavioral Risk Factor Surveillance System (BRFSS) 2015, a health-related telephone survey conducted annually by the Centers for Disease Control and Prevention (CDC). The BRFSS collects data from over 400,000 Americans on health-related risk behaviors, chronic health conditions, and the use of preventative services.
+>
+> For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the below levels.
+> - 0: No diabetes
+> - 1: Prediabetes or diabetes
+>
+> There are 21 potential predictors in the data, since I dont know anything about diabetes I will be using all of the predictors when modelling rather than making assumptions about what may be relevant
+>
+> - **HighBP**: High blood pressure (N/Y)
+> - **HighChol**: High cholesterol (N/Y)
+> - **CholCheck**: Cholesterol check within the past five years (N/Y)
+> - **BMI**: Body mass index (numeric)
+> - **Smoker**: Smoker status (N/Y)
+> - **Stroke**: History of stroke (N/Y)
+> - **HeartDiseaseorAttack**: Coronary heart disease or myocardial infarction (N/Y)
+> - **PhysActivity**: Physical activity in the past 30 days (N/Y)
+> - **Fruits**: Consumption of fruits at least once per day (N/Y)
+> - **Veggies**: Consumption of vegetables at least once per day (N/Y)
+> - **HvyAlcoholConsump**: Heavy alcohol consumption (N/Y)
+> - **AnyHealthcare**: Access to healthcare coverage (N/Y)
+> - **NoDocbcCost**: Inability to see a doctor due to cost (N/Y)
+> - **GenHlth**: General health status (Excellent/VGood/Good/Fair/Poor)
+> - **MentHlth**: Days in the past 30 days when mental health was not good (numeric)
+> - **PhysHlth**: Days in the past 30 days when physical health was not good (numeric)
+> - **DiffWalk**: Difficulty walking or climbing stairs (N/Y)
+> - **Sex**: Gender (F/M)
+> - **Age**: Age categories (18-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, 80+)
+> - **Education**: Education level (No School, Elem, Some HS, HS Grad, Some College, College Grad)
+> - **Income**: Income categories (<$10k, $10-15k, $15-20k, $20-25k, $25-35k, $35-50k, $50-75k, >$75k)
+
+> ### Purpose of EDA and Modeling Goal
+> The main goal of the EDA here is to get a better idea of the data and to spot potential relationships in the data, to hopefully build a model that can accurately predict diabetes based on the available predictors.
+> Since most of the predictors are categorical and there are a large number of them, I will mainly focus on understanding the following in the EDA:
+>
+> 1. **Understanding the Distribution**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
+> 2. **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data
+
+# Setup environment and read data
+```{r}
+#| eval: true
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(GGally)
+library(caret)
+library(corrplot)
+library(reshape2)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(scales)
+library(knitr)  # For rendering tables in Quarto
+
+# set seed
+set.seed(1)  
+
+```
+
+```{r}
+#| eval: true
+#| warning: false
+
+# Read in the data https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/
+input_data <- read_csv(
+  'diabetes_binary_health_indicators_BRFSS2015.csv',
+  show_col_types = FALSE
+)
+```
+
+# Data prep
+```{r}
+#| eval: true
+#| warning: false
+
+# Data cleanup
+df <- input_data |>
+  mutate(
+    Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("No", "Yes")), # slightly inconsistent here, but caret seems to expect yes = 1
+    
+    HighBP = factor(HighBP, levels = c(0, 1), labels = c("N", "Y")),
+    
+    HighChol = factor(HighChol, levels = c(0, 1), labels = c("N", "Y")),
+    
+    CholCheck = factor(CholCheck, levels = c(0, 1), labels = c("N", "Y")),
+    
+    Smoker = factor(Smoker, levels = c(0, 1), labels = c("N", "Y")),
+    
+    Stroke = factor(Stroke, levels = c(0, 1), labels = c("N", "Y")),
+    
+    HeartDiseaseorAttack = factor(HeartDiseaseorAttack, levels = c(0, 1), labels = c("N", "Y")),
+    
+    PhysActivity = factor(PhysActivity, levels = c(0, 1), labels = c("N", "Y")),
+    
+    Fruits = factor(Fruits, levels = c(0, 1), labels = c("N", "Y")),
+    
+    Veggies = factor(Veggies, levels = c(0, 1), labels = c("N", "Y")),
+    
+    HvyAlcoholConsump = factor(HvyAlcoholConsump, levels = c(0, 1), labels = c("N", "Y")),
+    
+    AnyHealthcare = factor(AnyHealthcare, levels = c(0, 1), labels = c("N", "Y")),
+    
+    NoDocbcCost = factor(NoDocbcCost, levels = c(0, 1), labels = c("N", "Y")),
+    
+    GenHlth = factor(GenHlth, levels = c(1, 2, 3, 4, 5), labels = c("Exc", "VGood", "Good", "Fair", "Poor")),
+    
+    DiffWalk = factor(DiffWalk, levels = c(0, 1), labels = c("N", "Y")),
+    
+    Sex = factor(Sex, levels = c(0, 1), labels = c("F", "M")),
+    
+    Age = factor(
+      Age, 
+      levels = 1:13, 
+      labels = c("18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+")
+    ),
+    
+    Education = factor(
+      Education, 
+      levels = 1:6, 
+      labels = c(
+        "None/Kinder", "Elem", "Some HS", 
+        "HS Grad", "Some College", "College Grad"
+      )
+    ),
+    
+    Income = factor(
+      Income, 
+      levels = 1:8, 
+      labels = c(
+        "<$10k", "$10-15k", "$15-20k", "$20-25k", 
+        "$25-35k", "$35-50k", "$50-75k", ">$75k"
+      )
+    )
+  )
+
+
+# Split dummy data and drop original fields
+train_index <- createDataPartition(df$Diabetes_binary, p = 0.7, list = FALSE)
+train_data <- df[train_index, ]
+test_data <- df[-train_index, ]
+
+# check results
+dim(df)
+dim(train_data)
+dim(test_data)
+
+```
+
+```{r}
+#| eval: true
+#| warning: false
+
+# Fit logistic model with every predictor
+logistic_model <- train(
+  Diabetes_binary ~ .,
+  data = train_data,
+  method = "glm",
+  family = "binomial",
+  trControl = trainControl(method = "repeatedcv", number = 5, repeats = 1),
+  preProcess = c("center", "scale")
+)
+
+# Print training model fit
+logistic_model
+summary(logistic_model)
+
+
+```
+
+
+
+
+
+
+
+
