@@ -361,8 +361,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 </blockquote>
 </section>
-<section id="review-plots" class="level2">
-<h2 class="anchored" data-anchor-id="review-plots">Review plots</h2>
+<section id="code-for-plots" class="level2">
+<h2 class="anchored" data-anchor-id="code-for-plots">Code for plots</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot pairs</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#GGally::ggpairs(df, columns = c(1, 2, 3, 4)) </span></span>
@@ -443,9 +443,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-</section>
-<section id="eda-results" class="level1">
-<h1>EDA results</h1>
+<section id="generate-plots" class="level2">
+<h2 class="anchored" data-anchor-id="generate-plots">Generate plots</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate heatmaps for factor variables with up to 3 levels</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (var <span class="cf">in</span> factor_vars_heatmap) {</span>
@@ -538,11 +537,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>The data looks complete and there are no obvious issues that pop out to me</li>
 <li>Almost all the potential predictors look relevant, based on how either the heatmaps or plots are very lopsided/skewed depending on the factor levels</li>
-<li>These predictors seem to have a particularly large impact: highbp, highchol, cholcheck, stroke, heartdiseaseorattack , veggie</li>
 </ul>
 </blockquote>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

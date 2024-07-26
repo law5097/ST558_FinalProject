@@ -7,44 +7,44 @@ editor: visual
 # Intro
 
 > ### Data Overview
+>
 > The dataset used for this analysis is derived from the Behavioral Risk Factor Surveillance System (BRFSS) 2015, a health-related telephone survey conducted annually by the Centers for Disease Control and Prevention (CDC). The BRFSS collects data from over 400,000 Americans on health-related risk behaviors, chronic health conditions, and the use of preventative services.
 >
-> For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the below levels.
-> - 0: No diabetes
-> - 1: Prediabetes or diabetes
+> For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the below levels. - 0: No diabetes - 1: Prediabetes or diabetes
 >
-> There are 21 potential predictors in the data, since I dont know anything about diabetes I will be using all of the predictors when modelling rather than making assumptions about what may be relevant
+> There are 21 potential predictors in the data:
 >
-> - **HighBP**: High blood pressure (N/Y)
-> - **HighChol**: High cholesterol (N/Y)
-> - **CholCheck**: Cholesterol check within the past five years (N/Y)
-> - **BMI**: Body mass index (numeric)
-> - **Smoker**: Smoker status (N/Y)
-> - **Stroke**: History of stroke (N/Y)
-> - **HeartDiseaseorAttack**: Coronary heart disease or myocardial infarction (N/Y)
-> - **PhysActivity**: Physical activity in the past 30 days (N/Y)
-> - **Fruits**: Consumption of fruits at least once per day (N/Y)
-> - **Veggies**: Consumption of vegetables at least once per day (N/Y)
-> - **HvyAlcoholConsump**: Heavy alcohol consumption (N/Y)
-> - **AnyHealthcare**: Access to healthcare coverage (N/Y)
-> - **NoDocbcCost**: Inability to see a doctor due to cost (N/Y)
-> - **GenHlth**: General health status (Excellent/VGood/Good/Fair/Poor)
-> - **MentHlth**: Days in the past 30 days when mental health was not good (numeric)
-> - **PhysHlth**: Days in the past 30 days when physical health was not good (numeric)
-> - **DiffWalk**: Difficulty walking or climbing stairs (N/Y)
-> - **Sex**: Gender (F/M)
-> - **Age**: Age categories (18-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, 80+)
-> - **Education**: Education level (No School, Elem, Some HS, HS Grad, Some College, College Grad)
-> - **Income**: Income categories (<$10k, $10-15k, $15-20k, $20-25k, $25-35k, $35-50k, $50-75k, >$75k)
+> -   **HighBP**: High blood pressure (N/Y)
+> -   **HighChol**: High cholesterol (N/Y)
+> -   **CholCheck**: Cholesterol check within the past five years (N/Y)
+> -   **BMI**: Body mass index (numeric)
+> -   **Smoker**: Smoker status (N/Y)
+> -   **Stroke**: History of stroke (N/Y)
+> -   **HeartDiseaseorAttack**: Coronary heart disease or myocardial infarction (N/Y)
+> -   **PhysActivity**: Physical activity in the past 30 days (N/Y)
+> -   **Fruits**: Consumption of fruits at least once per day (N/Y)
+> -   **Veggies**: Consumption of vegetables at least once per day (N/Y)
+> -   **HvyAlcoholConsump**: Heavy alcohol consumption (N/Y)
+> -   **AnyHealthcare**: Access to healthcare coverage (N/Y)
+> -   **NoDocbcCost**: Inability to see a doctor due to cost (N/Y)
+> -   **GenHlth**: General health status (Excellent/VGood/Good/Fair/Poor)
+> -   **MentHlth**: Days in the past 30 days when mental health was not good (numeric)
+> -   **PhysHlth**: Days in the past 30 days when physical health was not good (numeric)
+> -   **DiffWalk**: Difficulty walking or climbing stairs (N/Y)
+> -   **Sex**: Gender (F/M)
+> -   **Age**: Age categories (18-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, 80+)
+> -   **Education**: Education level (No School, Elem, Some HS, HS Grad, Some College, College Grad)
+> -   **Income**: Income categories (\<\$10k, \$10-15k, \$15-20k, \$20-25k, \$25-35k, \$35-50k, \$50-75k, \>\$75k)
 
 > ### Purpose of EDA and Modeling Goal
-> The main goal of the EDA here is to get a better idea of the data and to spot potential relationships in the data, to hopefully build a model that can accurately predict diabetes based on the available predictors.
-> Since most of the predictors are categorical and there are a large number of them, I will mainly focus on understanding the following in the EDA:
 >
-> 1. **Understanding the Distribution**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
-> 2. **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data
+> The main goal of the EDA here is to get a better idea of the data and to spot potential relationships in the data, to hopefully build a model that can accurately predict diabetes based on the available predictors. Since most of the predictors are categorical and there are a large number of them, I will mainly focus on understanding the following in the EDA:
+>
+> 1.  **Understanding the Distribution**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
+> 2.  **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data
 
 # Setup environment and data
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -144,7 +144,9 @@ df <- input_data |>
 ```
 
 # EDA
+
 ## Print summary results
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -155,34 +157,35 @@ summary(df)
 
 > Based on the dataset descriptions and the data, these are the variables and types:
 >
-> - **Diabetes_binary**: Factor (0: No diabetes, 1: Prediabetes or diabetes)
-> - **HighBP**: Factor (0: No, 1: Yes)
-> - **HighChol**: Factor (0: No, 1: Yes)
-> - **CholCheck**: Factor (0: No, 1: Yes)
-> - **BMI**: Numeric
-> - **Smoker**: Factor (0: No, 1: Yes)
-> - **Stroke**: Factor (0: No, 1: Yes)
-> - **HeartDiseaseorAttack**: Factor (0: No, 1: Yes)
-> - **PhysActivity**: Factor (0: No, 1: Yes)
-> - **Fruits**: Factor (0: No, 1: Yes)
-> - **Veggies**: Factor (0: No, 1: Yes)
-> - **HvyAlcoholConsump**: Factor (0: No, 1: Yes)
-> - **AnyHealthcare**: Factor (0: No, 1: Yes)
-> - **NoDocbcCost**: Factor (0: No, 1: Yes)
-> - **GenHlth**: Factor with 5 levels (1: Excellent, 2: Very good, 3: Good, 4: Fair, 5: Poor)
-> - **MentHlth**: Numeric
-> - **PhysHlth**: Numeric
-> - **DiffWalk**: Factor (0: No, 1: Yes)
-> - **Sex**: Factor with 2 levels (0: Female, 1: Male)
-> - **Age**: Factor with 13 levels (1: 18-24, 2: 25-29, 3: 30-34, 4: 35-39, 5: 40-44, 6: 45-49, 7: 50-54, 8: 55-59, 9: 60-64, 10: 65-69, 11: 70-74, 12: 75-79, 13: 80 or older)
-> - **Education**: Factor with 6 levels (1: Never attended school or only kindergarten, 2: Grades 1 through 8, 3: Grades 9 through 11, 4: Grade 12 or GED, 5: College 1 year to 3 years, 6: College 4 years or more)
-> - **Income**: Factor with 8 levels (1: Less than $10,000, 2: $10,000 to less than $15,000, 3: $15,000 to less than $20,000, 4: $20,000 to less than $25,000, 5: $25,000 to less than $35,000, 6: $35,000 to less than $50,000, 7: $50,000 to less than $75,000, 8: $75,000 or more)
+> -   **Diabetes_binary**: Factor (0: No diabetes, 1: Prediabetes or diabetes)
+> -   **HighBP**: Factor (0: No, 1: Yes)
+> -   **HighChol**: Factor (0: No, 1: Yes)
+> -   **CholCheck**: Factor (0: No, 1: Yes)
+> -   **BMI**: Numeric
+> -   **Smoker**: Factor (0: No, 1: Yes)
+> -   **Stroke**: Factor (0: No, 1: Yes)
+> -   **HeartDiseaseorAttack**: Factor (0: No, 1: Yes)
+> -   **PhysActivity**: Factor (0: No, 1: Yes)
+> -   **Fruits**: Factor (0: No, 1: Yes)
+> -   **Veggies**: Factor (0: No, 1: Yes)
+> -   **HvyAlcoholConsump**: Factor (0: No, 1: Yes)
+> -   **AnyHealthcare**: Factor (0: No, 1: Yes)
+> -   **NoDocbcCost**: Factor (0: No, 1: Yes)
+> -   **GenHlth**: Factor with 5 levels (1: Excellent, 2: Very good, 3: Good, 4: Fair, 5: Poor)
+> -   **MentHlth**: Numeric
+> -   **PhysHlth**: Numeric
+> -   **DiffWalk**: Factor (0: No, 1: Yes)
+> -   **Sex**: Factor with 2 levels (0: Female, 1: Male)
+> -   **Age**: Factor with 13 levels (1: 18-24, 2: 25-29, 3: 30-34, 4: 35-39, 5: 40-44, 6: 45-49, 7: 50-54, 8: 55-59, 9: 60-64, 10: 65-69, 11: 70-74, 12: 75-79, 13: 80 or older)
+> -   **Education**: Factor with 6 levels (1: Never attended school or only kindergarten, 2: Grades 1 through 8, 3: Grades 9 through 11, 4: Grade 12 or GED, 5: College 1 year to 3 years, 6: College 4 years or more)
+> -   **Income**: Factor with 8 levels (1: Less than \$10,000, 2: \$10,000 to less than \$15,000, 3: \$15,000 to less than \$20,000, 4: \$20,000 to less than \$25,000, 5: \$25,000 to less than \$35,000, 6: \$35,000 to less than \$50,000, 7: \$50,000 to less than \$75,000, 8: \$75,000 or more)
 
 > Some notes
 >
-> - In the kraggle notes they say Diabetes_binary should have 3 levels (0 = no diabetes 1 = prediabetes 2 = diabetes), but there are no records with value = 2
+> -   In the kraggle notes they say Diabetes_binary should have 3 levels (0 = no diabetes 1 = prediabetes 2 = diabetes), but there are no records with value = 2
 
 ## Code for plots
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -268,6 +271,7 @@ generate_histogram_factor <- function(var) {
 ```
 
 ## Generate plots
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -290,20 +294,7 @@ for (var in numeric_vars) {
 
 ```
 
-
 > Based on the plots above, these are my main conclusions
 >
-> - The data looks complete and there are no obvious issues that pop out to me
-> - Almost all the potential predictors look relevant, based on how either the heatmaps or plots are very lopsided/skewed depending on the factor levels
-
-
-
-
-
-
-
-
-
-
-
-
+> -   The data looks complete and there are no obvious issues that pop out to me
+> -   Almost all the potential predictors look relevant, based on how either the heatmaps or plots are very lopsided/skewed depending on the factor levels
