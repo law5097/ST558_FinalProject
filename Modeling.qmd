@@ -260,7 +260,7 @@ logistic_model_sig_main_interaction # logLoss 0.3178275
 #| warning: false
 
 #saveRDS(logistic_model_all_main, file = "logistic_model_7262024.rds")
-logistic_model <- readRDS("logistic_model_7262024.rds")
+logistic_model <- readRDS("C://Users//lawor//OneDrive//Desktop//School//ST 558//Projects//logistic_model_7262024.rds")
 
 # Print training model fit
 logistic_model # logloss 0.3170608
@@ -301,7 +301,7 @@ tree_model <- train(
 #| warning: false
 
 #saveRDS(tree_model, file = "tree_model_7262024.rds")
-tree_model <- readRDS("tree_model_7262024.rds")
+tree_model <- readRDS("C://Users//lawor//OneDrive//Desktop//School//ST 558//Projects//tree_model_7262024.rds")
 
 # Print training model fit
 tree_model # logloss 0.3565012
@@ -345,7 +345,7 @@ random_forest_model <- train(
 #| warning: false
 
 #saveRDS(random_forest_model, file = "random_forest_model_7262024.rds")
-random_forest_model <- readRDS("random_forest_model_7262024.rds")
+random_forest_model <- readRDS("C://Users//lawor//OneDrive//Desktop//School//ST 558//Projects//random_forest_model_7262024.rds")
 
 # Print training model fit
 random_forest_model # logloss 0.3294950
