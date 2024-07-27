@@ -1,3 +1,4 @@
+
 ---
 title: "ST558 Final Project Model Fitting - Lee Worthington"
 format: html
@@ -40,8 +41,8 @@ editor: visual
 >
 > The main goal of the EDA here is to get a better idea of the data and to spot potential relationships in the data, to hopefully build a model that can accurately predict diabetes based on the available predictors. Since most of the predictors are categorical and there are a large number of them, I will mainly focus on understanding the following in the EDA:
 >
-> 1.  **Understanding the Distribution**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
-> 2.  **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data
+> 1.  **Understanding Data Relationships**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
+> 2.  **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data.
 
 # Setup environment and read data
 
@@ -61,6 +62,7 @@ library(gridExtra)
 library(scales)
 library(knitr)  # For rendering tables in Quarto
 library(ranger)
+library(Metrics) # for logloss
 
 # set seed
 set.seed(1)  
@@ -88,7 +90,7 @@ input_data <- read_csv(
 # Data cleanup
 df <- input_data |>
   mutate(
-    Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("No", "Yes")), # slightly inconsistent here, but caret seems to expect yes = 1
+    Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("N", "Y")),
     
     HighBP = factor(HighBP, levels = c(0, 1), labels = c("N", "Y")),
     
@@ -151,17 +153,20 @@ train_data <- df[train_index, ]
 test_data <- df[-train_index, ]
 
 # check results
-dim(input_data)
-dim(df)
-dim(train_data)
-dim(test_data)
+summary(as.factor(input_data$Diabetes_binary)) # good
+summary(df$Diabetes_binary) # good
+summary(train_data$Diabetes_binary) # good
+summary(test_data$Diabetes_binary) # good
+head(df) # good
 
 ```
 
 # Fit models
 
 ## Logistic Models
+
 ### Model with all main effects
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -186,12 +191,12 @@ logistic_model_all_main <- train(
 )
 
 # Print training model fit
-logistic_model_all_main
-summary(logistic_model_all_main)
+logistic_model_all_main # logloss 0.3170608
 
 ```
 
 ### Model with only the significant main effects
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -216,14 +221,14 @@ logistic_model_sig_main <- train(
 )
 
 # Print training model fit
-logistic_model_sig_main
-summary(logistic_model_sig_main)
+logistic_model_sig_main # logloss 0.3170654
 
 ```
 
 ### Model with only the most significant main effects and adding interactions
+
 ```{r}
-#| eval: true
+#| eval: false
 #| warning: false
 
 # Fit logistic model with what appear to be the most impactful predictors 
@@ -244,19 +249,32 @@ logistic_model_sig_main_interaction <- train(
 )
 
 # Print training model fit
-logistic_model_sig_main_interaction
-summary(logistic_model_sig_main_interaction)
+logistic_model_sig_main_interaction # logLoss 0.3178275
+
+```
+
+### Final model fit (all main effects)
+
+```{r}
+#| eval: true
+#| warning: false
+
+#saveRDS(logistic_model_all_main, file = "logistic_model_7262024.rds")
+logistic_model <- readRDS("logistic_model_7262024.rds")
+
+# Print training model fit
+logistic_model # logloss 0.3170608
 
 ```
 
 > ### Logistic regression results
 >
-> Overall the model with all of the main effects has the best performance in terms of minimizing logloss
-> The model with interactions and main effects has a slightly higher logloss and significantly longer training time, no benefit
+> Overall the model with all of the main effects has the best performance in terms of minimizing logloss, the other 2 have similar but slightly worse performance
 
 ## Classification Tree
+
 ```{r}
-#| eval: true
+#| eval: false
 #| warning: false
 
 # Fit classification tree
@@ -276,9 +294,6 @@ tree_model <- train(
   tuneGrid = expand.grid(cp = seq(0, 0.1, by = 0.001))
 )
 
-# Print training model fit
-tree_model
-
 ```
 
 ```{r}
@@ -286,13 +301,17 @@ tree_model
 #| warning: false
 
 #saveRDS(tree_model, file = "tree_model_7262024.rds")
-#tree_model <- readRDS("tree_7262024.rds")
+tree_model <- readRDS("tree_model_7262024.rds")
+
+# Print training model fit
+tree_model # logloss 0.3565012
 
 ```
 
 ## Random Forest
+
 ```{r}
-#| eval: true
+#| eval: false
 #| warning: false
 
 # Ranger RF
@@ -317,7 +336,7 @@ random_forest_model <- train(
 )
 
 # Print training model fit
-random_forest_model
+#random_forest_model
 
 ```
 
@@ -326,51 +345,61 @@ random_forest_model
 #| warning: false
 
 #saveRDS(random_forest_model, file = "random_forest_model_7262024.rds")
-loaded_model <- readRDS("random_forest_model_7262024.rds")
+random_forest_model <- readRDS("random_forest_model_7262024.rds")
+
+# Print training model fit
+random_forest_model # logloss 0.3294950
 
 ```
 
-## Review results
+## Test set comparison
+
 ```{r}
 #| eval: true
 #| warning: false
 
-# Set data to review
-#review_data <- train_data
+# Set data to generate performance stats on
 review_data <- test_data
 
 # Convert Diabetes_binary to numeric for logloss
-review_data$Diabetes_binary_numeric <- ifelse(review_data$Diabetes_binary == "Yes", 1, 0)
+review_data$Diabetes_binary_numeric <- ifelse(review_data$Diabetes_binary == "Y", 1, 0)
 
 # Generate probabilities so I can calculate log-loss
-review_data$Diabetes_logistic_prob <- predict(logistic_model_all_main, newdata = review_data, type = "prob")[,2]
+review_data$Diabetes_logistic_prob <- predict(logistic_model, newdata = review_data, type = "prob")[,2]
 review_data$Diabetes_tree_prob <- predict(tree_model, newdata = review_data, type = "prob")[,2]
 review_data$Diabetes_rf_prob <- predict(random_forest_model, newdata = review_data, type = "prob")[,2]
 
 # Generate prediction
-review_data$Diabetes_logistic <- predict(logistic_model_all_main, newdata = review_data)
+review_data$Diabetes_logistic <- predict(logistic_model, newdata = review_data)
 review_data$Diabetes_tree <- predict(tree_model, newdata = review_data)
 review_data$Diabetes_rf <- predict(random_forest_model, newdata = review_data)
 
-# Custom function to calculate log-loss
-log_loss <- function(actual, predicted_prob) {
-  eps <- 1e-15
-  predicted_prob <- pmin(pmax(predicted_prob, eps), 1 - eps)
-  -mean(actual * log(predicted_prob) + (1 - actual) * log(1 - predicted_prob))
-}
+# Summary for comparison
+summary(review_data$Diabetes_binary)
 
-# Print logloss and confusion matrix for each
-cat("Log-Loss for Logistic Regression:", log_loss(review_data$Diabetes_binary_numeric, review_data$Diabetes_logistic_prob), "\n")
-confusionMatrix(review_data$Diabetes_binary, review_data$Diabetes_logistic)
+# Print log-loss and confusion matrix for each model
+cat("Log-Loss for Logistic Regression:", logLoss(review_data$Diabetes_binary_numeric, review_data$Diabetes_logistic_prob), "\n")
+print(confusionMatrix(review_data$Diabetes_logistic, review_data$Diabetes_binary))
 
-cat("Log-Loss for Classification Tree:", log_loss(review_data$Diabetes_binary_numeric, review_data$Diabetes_tree_prob), "\n")
-confusionMatrix(review_data$Diabetes_binary, review_data$Diabetes_tree)
+cat("Log-Loss for Classification Tree:", logLoss(review_data$Diabetes_binary_numeric, review_data$Diabetes_tree_prob), "\n")
+print(confusionMatrix(review_data$Diabetes_tree, review_data$Diabetes_binary))
 
-cat("Log-Loss for Random Forest:", log_loss(review_data$Diabetes_binary_numeric, review_data$Diabetes_rf_prob), "\n")
-confusionMatrix(review_data$Diabetes_binary, review_data$Diabetes_rf)
+cat("Log-Loss for Random Forest:", logLoss(review_data$Diabetes_binary_numeric, review_data$Diabetes_rf_prob), "\n")
+print(confusionMatrix(review_data$Diabetes_rf, review_data$Diabetes_binary))
+
+# paranoia check
+#review_data %>%
+ # group_by(Diabetes_binary, Diabetes_rf) %>%
+  #summarise(count = n()) %>%
+  #print()
 
 ```
 
-
+> ## Model comparison
+>
+> - On the test set in terms of logloss and accuracy these are all very similar However due to highly skewed data specificity tends to be terrible 
+> - Since the assignment didn't mention it I've opted not to try addressing the skewed data with resampling and other techniques
+> - The logistic regression model has the lowest logloss and also does slightly better than the other models labelling the minority class
+> - So in this case I'll use the logistic model as the final model
 
 
