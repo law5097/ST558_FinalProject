@@ -1,0 +1,64 @@
+
+-----------------------------------------
+-- Saving a docker file (use gitbash)
+-----------------------------------------
+Navigate to directory
+    cd '/c/users/lawor/onedrive/desktop/school/st 558/projects/st558_finalproject/docker'
+
+Show files in wd
+    ls
+
+Build image
+    docker build -t st558_final .
+
+Run image
+    docker run --rm -p 8000:8000 st558_final
+
+Save image
+    docker save st558_final > st558_final.tar
+
+-----------------------------------------
+-- Running a loaded docker file (use gitbash)
+-----------------------------------------
+
+load the image 
+    docker load < st558_final.tar
+    OR 
+    docker load < '/c/users/lawor/onedrive/desktop/school/st 558/projects/st558_finalproject/docker/st558_final.tar'
+
+confirm image is loaded
+    docker images
+
+run the image
+    docker run --rm -p 8000:8000 st558_final
+
+
+
+
+
+
+
+
+
+-------------------------------------------
+# Use the official R base image
+FROM rocker/r-ver:4.2.2
+
+# Install the Linux libraries needed for plumber
+RUN apt-get update -qq && apt-get install -y libssl-dev libcurl4-gnutls-dev libpng-dev
+
+# Install R packages not included in r-base
+RUN R -e "install.packages(c('plumber', 'tidyverse', 'caret', 'ranger', 'Metrics'))"
+
+# Set the working directory
+WORKDIR /app
+
+# Copy API.R and the dataset into the Docker image
+COPY API.R /app/API.R
+COPY diabetes_binary_health_indicators_BRFSS2015.csv /app/diabetes_binary_health_indicators_BRFSS2015.csv
+
+# Expose port 8000
+EXPOSE 8000
+
+# Run the API locally at port 8000
+ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/app/API.R'); pr$run(host = '0.0.0.0', port = 8000)"]

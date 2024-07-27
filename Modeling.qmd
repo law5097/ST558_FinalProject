@@ -13,7 +13,7 @@ editor: visual
 >
 > For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the below levels. - 0: No diabetes - 1: Prediabetes or diabetes
 >
-> There are 21 potential predictors in the data:
+> There are 21 potential predictors in the data (https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/):
 >
 > -   **HighBP**: High blood pressure (N/Y)
 > -   **HighChol**: High cholesterol (N/Y)
@@ -91,43 +91,26 @@ input_data <- read_csv(
 df <- input_data |>
   mutate(
     Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("N", "Y")),
-    
     HighBP = factor(HighBP, levels = c(0, 1), labels = c("N", "Y")),
-    
     HighChol = factor(HighChol, levels = c(0, 1), labels = c("N", "Y")),
-    
     CholCheck = factor(CholCheck, levels = c(0, 1), labels = c("N", "Y")),
-    
     Smoker = factor(Smoker, levels = c(0, 1), labels = c("N", "Y")),
-    
     Stroke = factor(Stroke, levels = c(0, 1), labels = c("N", "Y")),
-    
     HeartDiseaseorAttack = factor(HeartDiseaseorAttack, levels = c(0, 1), labels = c("N", "Y")),
-    
     PhysActivity = factor(PhysActivity, levels = c(0, 1), labels = c("N", "Y")),
-    
     Fruits = factor(Fruits, levels = c(0, 1), labels = c("N", "Y")),
-    
     Veggies = factor(Veggies, levels = c(0, 1), labels = c("N", "Y")),
-    
     HvyAlcoholConsump = factor(HvyAlcoholConsump, levels = c(0, 1), labels = c("N", "Y")),
-    
     AnyHealthcare = factor(AnyHealthcare, levels = c(0, 1), labels = c("N", "Y")),
-    
     NoDocbcCost = factor(NoDocbcCost, levels = c(0, 1), labels = c("N", "Y")),
-    
     GenHlth = factor(GenHlth, levels = c(1, 2, 3, 4, 5), labels = c("Exc", "VGood", "Good", "Fair", "Poor")),
-    
     DiffWalk = factor(DiffWalk, levels = c(0, 1), labels = c("N", "Y")),
-    
     Sex = factor(Sex, levels = c(0, 1), labels = c("F", "M")),
-    
     Age = factor(
       Age, 
       levels = 1:13, 
       labels = c("18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+")
     ),
-    
     Education = factor(
       Education, 
       levels = 1:6, 
@@ -136,7 +119,6 @@ df <- input_data |>
         "HS Grad", "Some College", "College Grad"
       )
     ),
-    
     Income = factor(
       Income, 
       levels = 1:8, 
@@ -153,11 +135,13 @@ train_data <- df[train_index, ]
 test_data <- df[-train_index, ]
 
 # check results
-summary(as.factor(input_data$Diabetes_binary)) # good
-summary(df$Diabetes_binary) # good
-summary(train_data$Diabetes_binary) # good
-summary(test_data$Diabetes_binary) # good
-head(df) # good
+#summary(as.factor(input_data$Diabetes_binary)) # good
+#summary(df$Diabetes_binary) # good
+#summary(train_data$Diabetes_binary) # good
+#summary(test_data$Diabetes_binary) # good
+#head(df) # good
+
+summary(df)
 
 ```
 
@@ -228,7 +212,7 @@ logistic_model_sig_main # logloss 0.3170654
 ### Model with only the most significant main effects and adding interactions
 
 ```{r}
-#| eval: false
+#| eval: true
 #| warning: false
 
 # Fit logistic model with what appear to be the most impactful predictors 
