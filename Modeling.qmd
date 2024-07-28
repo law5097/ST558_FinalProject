@@ -1,54 +1,33 @@
-
 ---
-title: "ST558 Final Project Model Fitting - Lee Worthington"
-format: html
+title: "ST558 Final Project Modelling - Lee Worthington"
+format: 
+  html:
+    embed-resources: true
 editor: visual
+editor_options: 
+  chunk_output_type: inline
 ---
 
-# Intro
+## Intro
+> In this file using the diabetes dataset described in the EDA I'll fit a series of models attempting to predict the Diabetes_Binary field using log loss as the evaluation metric, models built here include:
+>
+> - 3 different logistic regression models
+> - 1 classification tree
+> - 1 random forest
 
-> ### Data Overview
+> Log loss
 >
-> The dataset used for this analysis is derived from the Behavioral Risk Factor Surveillance System (BRFSS) 2015, a health-related telephone survey conducted annually by the Centers for Disease Control and Prevention (CDC). The BRFSS collects data from over 400,000 Americans on health-related risk behaviors, chronic health conditions, and the use of preventative services.
->
-> For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the below levels. - 0: No diabetes - 1: Prediabetes or diabetes
->
-> There are 21 potential predictors in the data (https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/):
->
-> -   **HighBP**: High blood pressure (N/Y)
-> -   **HighChol**: High cholesterol (N/Y)
-> -   **CholCheck**: Cholesterol check within the past five years (N/Y)
-> -   **BMI**: Body mass index (numeric)
-> -   **Smoker**: Smoker status (N/Y)
-> -   **Stroke**: History of stroke (N/Y)
-> -   **HeartDiseaseorAttack**: Coronary heart disease or myocardial infarction (N/Y)
-> -   **PhysActivity**: Physical activity in the past 30 days (N/Y)
-> -   **Fruits**: Consumption of fruits at least once per day (N/Y)
-> -   **Veggies**: Consumption of vegetables at least once per day (N/Y)
-> -   **HvyAlcoholConsump**: Heavy alcohol consumption (N/Y)
-> -   **AnyHealthcare**: Access to healthcare coverage (N/Y)
-> -   **NoDocbcCost**: Inability to see a doctor due to cost (N/Y)
-> -   **GenHlth**: General health status (Excellent/VGood/Good/Fair/Poor)
-> -   **MentHlth**: Days in the past 30 days when mental health was not good (numeric)
-> -   **PhysHlth**: Days in the past 30 days when physical health was not good (numeric)
-> -   **DiffWalk**: Difficulty walking or climbing stairs (N/Y)
-> -   **Sex**: Gender (F/M)
-> -   **Age**: Age categories (18-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, 80+)
-> -   **Education**: Education level (No School, Elem, Some HS, HS Grad, Some College, College Grad)
-> -   **Income**: Income categories (\<\$10k, \$10-15k, \$15-20k, \$20-25k, \$25-35k, \$35-50k, \$50-75k, \>\$75k)
+> - Log loss is a performance metric for evaluating the predictions of a binary classification model that takes on the following form
+> - Log Loss = - (1/N) * Σ [ y_i * log(p_i) + (1 - y_i) * log(1 - p_i) ]
+> - Where y_i is the true label, p_i is the predicted probability, and N is the number of instances.
+> - Since log loss considers probabilities of correct predictions, unlike something like accuracy, it's more sensitive to imbalanced binary target variables as incorrect predictions will be more heavily penalized which encourages more balanced classification accuracy from the model
 
-> ### Purpose of EDA and Modeling Goal
->
-> The main goal of the EDA here is to get a better idea of the data and to spot potential relationships in the data, to hopefully build a model that can accurately predict diabetes based on the available predictors. Since most of the predictors are categorical and there are a large number of them, I will mainly focus on understanding the following in the EDA:
->
-> 1.  **Understanding Data Relationships**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
-> 2.  **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data.
-
-# Setup environment and read data
-
+## Setup environment and read data
+### Load libraries, set seed
 ```{r}
 #| eval: true
 #| warning: false
+#| message: false
 
 # load libraries
 library(tidyverse)
@@ -69,20 +48,20 @@ set.seed(1)
 
 ```
 
+### Get data
 ```{r}
 #| eval: true
 #| warning: false
 
 # Read in the data https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/
 input_data <- read_csv(
-  'diabetes_binary_health_indicators_BRFSS2015.csv',
+  'docker/diabetes_binary_health_indicators_BRFSS2015.csv',
   show_col_types = FALSE
 )
 
 ```
 
-# Data prep
-
+### Set data types and levels where needed
 ```{r}
 #| eval: true
 #| warning: false
@@ -136,26 +115,25 @@ test_data <- df[-train_index, ]
 
 # check results
 #summary(as.factor(input_data$Diabetes_binary)) # good
-#summary(df$Diabetes_binary) # good
-#summary(train_data$Diabetes_binary) # good
-#summary(test_data$Diabetes_binary) # good
-#head(df) # good
-
-summary(df)
+summary(df$Diabetes_binary) # good
+summary(train_data$Diabetes_binary) # good
+summary(test_data$Diabetes_binary) # good
 
 ```
 
-# Fit models
-
-## Logistic Models
+## Logistic Regression Models
+> Explanation
+>
+> - Logistic regression is a statistical method used for modeling a binary response variable that predicts the probability that an instance belongs to one of 2 classes
+> - The model generates a proability for a particular class, which is then used to assign a final prediction based base on a 0.5 threshold
+> - The model has the following form: Logit(p) = ln(p / (1 - p)) = β_0 + β_1 * x_1 + β_2 * x_2 + ... + β_n * x_n
+> - Where p is the probability of the positive class, β_0 is the intercept, β_1, β_2, ..., β_n are the coefficients, and x_1, x_2, ..., x_n are the predictor variables
+> - The logit function is used to map the predicted values to a range between 0 and 1
 
 ### Model with all main effects
-
 ```{r}
 #| eval: true
 #| warning: false
-
-# https://topepo.github.io/caret/model-training-and-tuning.html
 
 # Full main effect model
 logistic_model_all_main <- train(
@@ -173,23 +151,25 @@ logistic_model_all_main <- train(
     verboseIter = TRUE # Enable progress messages
   )
 )
+```
+
+```{r}
+#| eval: true
+#| warning: false
 
 # Print training model fit
 logistic_model_all_main # logloss 0.3170608
-
 ```
 
-### Model with only the significant main effects
-
+### Model with only the main effects of predictors that looked impactful from EDA and the full model above
 ```{r}
 #| eval: true
 #| warning: false
 
 # Only include significant effects
 logistic_model_sig_main <- train(
-  Diabetes_binary ~ HighBP + HighChol + BMI + HvyAlcoholConsump + GenHlth + Income + CholCheck + 
-                    Smoker + Stroke + HeartDiseaseorAttack + PhysActivity + AnyHealthcare + 
-                    MentHlth + PhysHlth + DiffWalk + Sex + Age,
+  Diabetes_binary ~ BMI + GenHlth + HighBP + HighChol + Age + Income + PhysHlth + MentHlth,
+  #Diabetes_binary ~ BMI + GenHlth + HighBP + HighChol + Age + Income + PhysHlth + MentHlth + Education,
   data = train_data,
   method = "glm",
   family = "binomial",
@@ -204,20 +184,24 @@ logistic_model_sig_main <- train(
   )
 )
 
-# Print training model fit
-logistic_model_sig_main # logloss 0.3170654
-
 ```
 
-### Model with only the most significant main effects and adding interactions
+```{r}
+#| eval: true
+#| warning: false
 
+# Print training model fit
+logistic_model_sig_main # logloss 0.3204551
+```
+
+### Model with the subset of predictors and their interactions
 ```{r}
 #| eval: true
 #| warning: false
 
 # Fit logistic model with what appear to be the most impactful predictors 
 logistic_model_sig_main_interaction <- train(
-  Diabetes_binary ~ (HighBP + HighChol + BMI + HvyAlcoholConsump + GenHlth + Age + Sex)^2,
+  Diabetes_binary ~ (BMI + GenHlth + HighBP + HighChol + Age + Income + PhysHlth + MentHlth)^2,
   data = train_data,
   method = "glm",
   family = "binomial",
@@ -232,30 +216,40 @@ logistic_model_sig_main_interaction <- train(
   )
 )
 
-# Print training model fit
-logistic_model_sig_main_interaction # logLoss 0.3178275
-
 ```
-
-### Final model fit (all main effects)
 
 ```{r}
 #| eval: true
 #| warning: false
 
-#saveRDS(logistic_model_all_main, file = "logistic_model_7262024.rds")
-logistic_model <- readRDS("C://Users//lawor//OneDrive//Desktop//School//ST 558//Projects//logistic_model_7262024.rds")
-
 # Print training model fit
-logistic_model # logloss 0.3170608
-
+summary(logistic_model_sig_main_interaction) # logLoss 0.3194338
 ```
 
-> ### Logistic regression results
+### Final model fit (all main effects)
+```{r}
+#| eval: true
+#| warning: false
+
+#saveRDS(logistic_model_all_main, file = "logistic_model_7262024.rds")
+logistic_model <- logistic_model_all_main
+
+# Print training model fit
+logistic_model
+```
+> Logistic regression results
 >
-> Overall the model with all of the main effects has the best performance in terms of minimizing logloss, the other 2 have similar but slightly worse performance
+> - Overall the model with all of the main effects has the best performance in terms of minimizing logloss with a value of logloss 0.3170608, so I'll use the full model as the final model
+> - That being said the model with only a subset of the predictors is very close in terms of performance and slightly simpler 
 
 ## Classification Tree
+> Explanation
+>
+> - Classification trees are a non-parametric supervised method used for classifying instances into classes
+> - The model splits the data into subsets based by splitting on predictors in a way that minimizes your target metric at each split, in a greedy manner
+> - This splitting continues until a predefined point or some threshold set by the user is met such as a mximum depth or minimum node observations
+> - In classification the final prediction is based on the mode in the final node of one of the tree paths
+> - Trees are helpful when your data potentially has complex interactions and/or is non-linear, they are also generally pretty easy to interpret depending on how complex they are
 
 ```{r}
 #| eval: false
@@ -277,22 +271,27 @@ tree_model <- train(
   ),
   tuneGrid = expand.grid(cp = seq(0, 0.1, by = 0.001))
 )
-
 ```
 
 ```{r}
 #| eval: true
 #| warning: false
 
+# The decision tree takes a while to train, so I've saved it here so I don't need to retrain it every time I change/test something in this code
 #saveRDS(tree_model, file = "tree_model_7262024.rds")
 tree_model <- readRDS("C://Users//lawor//OneDrive//Desktop//School//ST 558//Projects//tree_model_7262024.rds")
 
 # Print training model fit
 tree_model # logloss 0.3565012
-
 ```
 
 ## Random Forest
+> Explanation
+>
+> - Random forest is an ensemble learning method that builds multiple decision trees and takes the mode or mean of the ensemble of trees to make a final prediction
+> - Each tree in the forest is trained on a bootstrap sample (random sample with replacement of size n) and random subset of predictors
+> - The process for fitting each tree is the same as in the basic classification tree outlined above
+> - The main advantages of this approach is that it prevents overfitting while decreasing variance in predictions by aggregating the predictions from multiple trees, instead of a single tree
 
 ```{r}
 #| eval: false
@@ -318,26 +317,21 @@ random_forest_model <- train(
   ),
   tuneLength = 3 #tuneGrid = expand.grid(mtry = 1:(ncol(train_data) - 1))
 )
-
-# Print training model fit
-#random_forest_model
-
 ```
 
 ```{r}
 #| eval: true
 #| warning: false
 
+# The random forest takes a while to train, so I've saved it here so I don't need to retrain it every time I change/test something in this code
 #saveRDS(random_forest_model, file = "random_forest_model_7262024.rds")
 random_forest_model <- readRDS("C://Users//lawor//OneDrive//Desktop//School//ST 558//Projects//random_forest_model_7262024.rds")
 
 # Print training model fit
 random_forest_model # logloss 0.3294950
-
 ```
 
-## Test set comparison
-
+## Test data performance comparison
 ```{r}
 #| eval: true
 #| warning: false
@@ -379,11 +373,9 @@ print(confusionMatrix(review_data$Diabetes_rf, review_data$Diabetes_binary))
 
 ```
 
-> ## Model comparison
+> Model comparison
 >
-> - On the test set in terms of logloss and accuracy these are all very similar However due to highly skewed data specificity tends to be terrible 
-> - Since the assignment didn't mention it I've opted not to try addressing the skewed data with resampling and other techniques
-> - The logistic regression model has the lowest logloss and also does slightly better than the other models labelling the minority class
+> - On the test set in terms of logloss and accuracy these are all very similar, though none of them label the minority class particularly well
+> - Overall the logistic regression model has the lowest logloss and also does slightly better than the other models labelling the minority class
+> - The logistic regression model is also the easiest to fit in terms of computational cost
 > - So in this case I'll use the logistic model as the final model
-
-

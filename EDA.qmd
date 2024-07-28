@@ -1,53 +1,54 @@
 ---
-title: "ST558 Final Project EDA - Lee Worthington"
-format: html
+title: "ST558 Final Project EDA"
+subtitle: "Lee Worthington"
+format: 
+  html:
+    embed-resources: true
 editor: visual
+editor_options: 
+  chunk_output_type: inline
 ---
 
-# Intro
+## Intro
+> Description
+> - The dataset used for this analysis is derived from the Behavioral Risk Factor Surveillance System (BRFSS) 2015, a health-related telephone survey conducted annually by the Centers for Disease Control and Prevention (CDC). The BRFSS collects data from over 400,000 Americans on health-related risk behaviors, chronic health conditions, and the use of preventative services.
+> - For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the levels. 0 No diabetes 1 Prediabetes or diabetes
 
-> ### Data Overview
->
-> The dataset used for this analysis is derived from the Behavioral Risk Factor Surveillance System (BRFSS) 2015, a health-related telephone survey conducted annually by the Centers for Disease Control and Prevention (CDC). The BRFSS collects data from over 400,000 Americans on health-related risk behaviors, chronic health conditions, and the use of preventative services.
->
-> For this project Ill focus on the diabetes_binary_health_indicators_BRFSS2015.csv file that contains 253680 survey responses, the main goal is to predict Diabetes_binary which has the below levels. - 0: No diabetes - 1: Prediabetes or diabetes
->
 > There are 21 potential predictors in the data:
 >
-> -   **HighBP**: High blood pressure (N/Y)
-> -   **HighChol**: High cholesterol (N/Y)
-> -   **CholCheck**: Cholesterol check within the past five years (N/Y)
-> -   **BMI**: Body mass index (numeric)
-> -   **Smoker**: Smoker status (N/Y)
-> -   **Stroke**: History of stroke (N/Y)
-> -   **HeartDiseaseorAttack**: Coronary heart disease or myocardial infarction (N/Y)
-> -   **PhysActivity**: Physical activity in the past 30 days (N/Y)
-> -   **Fruits**: Consumption of fruits at least once per day (N/Y)
-> -   **Veggies**: Consumption of vegetables at least once per day (N/Y)
-> -   **HvyAlcoholConsump**: Heavy alcohol consumption (N/Y)
-> -   **AnyHealthcare**: Access to healthcare coverage (N/Y)
-> -   **NoDocbcCost**: Inability to see a doctor due to cost (N/Y)
-> -   **GenHlth**: General health status (Excellent/VGood/Good/Fair/Poor)
-> -   **MentHlth**: Days in the past 30 days when mental health was not good (numeric)
-> -   **PhysHlth**: Days in the past 30 days when physical health was not good (numeric)
-> -   **DiffWalk**: Difficulty walking or climbing stairs (N/Y)
-> -   **Sex**: Gender (F/M)
-> -   **Age**: Age categories (18-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, 80+)
-> -   **Education**: Education level (No School, Elem, Some HS, HS Grad, Some College, College Grad)
-> -   **Income**: Income categories (\<\$10k, \$10-15k, \$15-20k, \$20-25k, \$25-35k, \$35-50k, \$50-75k, \>\$75k)
+> - **HighBP**: High blood pressure (N/Y)
+> - **HighChol**: High cholesterol (N/Y)
+> - **CholCheck**: Cholesterol check within the past five years (N/Y)
+> - **BMI**: Body mass index (numeric)
+> - **Smoker**: Smoker status (N/Y)
+> - **Stroke**: History of stroke (N/Y)
+> - **HeartDiseaseorAttack**: Coronary heart disease or myocardial infarction (N/Y)
+> - **PhysActivity**: Physical activity in the past 30 days (N/Y)
+> - **Fruits**: Consumption of fruits at least once per day (N/Y)
+> - **Veggies**: Consumption of vegetables at least once per day (N/Y)
+> - **HvyAlcoholConsump**: Heavy alcohol consumption (N/Y)
+> - **AnyHealthcare**: Access to healthcare coverage (N/Y)
+> - **NoDocbcCost**: Inability to see a doctor due to cost (N/Y)
+> - **GenHlth**: General health status (Excellent/VGood/Good/Fair/Poor)
+> - **MentHlth**: Days in the past 30 days when mental health was not good (numeric)
+> - **PhysHlth**: Days in the past 30 days when physical health was not good (numeric)
+> - **DiffWalk**: Difficulty walking or climbing stairs (N/Y)
+> - **Sex**: Gender (F/M)
+> - **Age**: Age categories (18-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, 80+)
+> - **Education**: Education level (No School, Elem, Some HS, HS Grad, Some College, College Grad)
+> - **Income**: Income categories (\<\$10k, \$10-15k, \$15-20k, \$20-25k, \$25-35k, \$35-50k, \$50-75k, \>\$75k)
 
-> ### Purpose of EDA and Modeling Goal
->
 > The main goal of the EDA here is to get a better idea of the data and to spot potential relationships in the data, to hopefully build a model that can accurately predict diabetes based on the available predictors. Since most of the predictors are categorical and there are a large number of them, I will mainly focus on understanding the following in the EDA:
 >
-> 1.  **Understanding the Distribution**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
-> 2.  **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data
+> - **Understanding the Data**: Primarily how the distributions for each predictor vary based on having or not having diabetes, in order to identify potentially relevant predictors
+> - **Checking Data Quality**: ID any potential issues with the data, that may require adjustment. That being said my general approach is to not clean or remove data unless im certain its an error, which I cannot be with this data
 
-# Setup environment and data
-
+## Setup environment and data
+### Load libraries, set seed
 ```{r}
 #| eval: true
 #| warning: false
+#| message: false
 
 # load libraries
 library(tidyverse)
@@ -66,6 +67,7 @@ set.seed(1)
 
 ```
 
+### Get data
 ```{r}
 #| eval: true
 #| warning: false
@@ -77,6 +79,7 @@ input_data <- read_csv(
 )
 ```
 
+### Set data types and levels where needed
 ```{r}
 #| eval: true
 #| warning: false
@@ -84,44 +87,27 @@ input_data <- read_csv(
 # Data cleanup
 df <- input_data |>
   mutate(
-    Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1, 2), labels = c("No", "Pre", "Yes")),
-    
+    Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("N", "Y")),
     HighBP = factor(HighBP, levels = c(0, 1), labels = c("N", "Y")),
-    
     HighChol = factor(HighChol, levels = c(0, 1), labels = c("N", "Y")),
-    
     CholCheck = factor(CholCheck, levels = c(0, 1), labels = c("N", "Y")),
-    
     Smoker = factor(Smoker, levels = c(0, 1), labels = c("N", "Y")),
-    
     Stroke = factor(Stroke, levels = c(0, 1), labels = c("N", "Y")),
-    
     HeartDiseaseorAttack = factor(HeartDiseaseorAttack, levels = c(0, 1), labels = c("N", "Y")),
-    
     PhysActivity = factor(PhysActivity, levels = c(0, 1), labels = c("N", "Y")),
-    
     Fruits = factor(Fruits, levels = c(0, 1), labels = c("N", "Y")),
-    
     Veggies = factor(Veggies, levels = c(0, 1), labels = c("N", "Y")),
-    
     HvyAlcoholConsump = factor(HvyAlcoholConsump, levels = c(0, 1), labels = c("N", "Y")),
-    
     AnyHealthcare = factor(AnyHealthcare, levels = c(0, 1), labels = c("N", "Y")),
-    
     NoDocbcCost = factor(NoDocbcCost, levels = c(0, 1), labels = c("N", "Y")),
-    
     GenHlth = factor(GenHlth, levels = c(1, 2, 3, 4, 5), labels = c("Exc", "VGood", "Good", "Fair", "Poor")),
-    
     DiffWalk = factor(DiffWalk, levels = c(0, 1), labels = c("N", "Y")),
-    
     Sex = factor(Sex, levels = c(0, 1), labels = c("F", "M")),
-    
     Age = factor(
       Age, 
       levels = 1:13, 
       labels = c("18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+")
     ),
-    
     Education = factor(
       Education, 
       levels = 1:6, 
@@ -130,7 +116,6 @@ df <- input_data |>
         "HS Grad", "Some College", "College Grad"
       )
     ),
-    
     Income = factor(
       Income, 
       levels = 1:8, 
@@ -143,61 +128,29 @@ df <- input_data |>
 
 ```
 
-# EDA
-
-## Print summary results
-
+## EDA
+### Print summary results
 ```{r}
 #| eval: true
 #| warning: false
 
 summary(df)
+sapply(df, function(x) sum(is.na(x)))
 
 ```
-
-> Based on the dataset descriptions and the data, these are the variables and types:
+> Observations
 >
-> -   **Diabetes_binary**: Factor (0: No diabetes, 1: Prediabetes or diabetes)
-> -   **HighBP**: Factor (0: No, 1: Yes)
-> -   **HighChol**: Factor (0: No, 1: Yes)
-> -   **CholCheck**: Factor (0: No, 1: Yes)
-> -   **BMI**: Numeric
-> -   **Smoker**: Factor (0: No, 1: Yes)
-> -   **Stroke**: Factor (0: No, 1: Yes)
-> -   **HeartDiseaseorAttack**: Factor (0: No, 1: Yes)
-> -   **PhysActivity**: Factor (0: No, 1: Yes)
-> -   **Fruits**: Factor (0: No, 1: Yes)
-> -   **Veggies**: Factor (0: No, 1: Yes)
-> -   **HvyAlcoholConsump**: Factor (0: No, 1: Yes)
-> -   **AnyHealthcare**: Factor (0: No, 1: Yes)
-> -   **NoDocbcCost**: Factor (0: No, 1: Yes)
-> -   **GenHlth**: Factor with 5 levels (1: Excellent, 2: Very good, 3: Good, 4: Fair, 5: Poor)
-> -   **MentHlth**: Numeric
-> -   **PhysHlth**: Numeric
-> -   **DiffWalk**: Factor (0: No, 1: Yes)
-> -   **Sex**: Factor with 2 levels (0: Female, 1: Male)
-> -   **Age**: Factor with 13 levels (1: 18-24, 2: 25-29, 3: 30-34, 4: 35-39, 5: 40-44, 6: 45-49, 7: 50-54, 8: 55-59, 9: 60-64, 10: 65-69, 11: 70-74, 12: 75-79, 13: 80 or older)
-> -   **Education**: Factor with 6 levels (1: Never attended school or only kindergarten, 2: Grades 1 through 8, 3: Grades 9 through 11, 4: Grade 12 or GED, 5: College 1 year to 3 years, 6: College 4 years or more)
-> -   **Income**: Factor with 8 levels (1: Less than \$10,000, 2: \$10,000 to less than \$15,000, 3: \$15,000 to less than \$20,000, 4: \$20,000 to less than \$25,000, 5: \$25,000 to less than \$35,000, 6: \$35,000 to less than \$50,000, 7: \$50,000 to less than \$75,000, 8: \$75,000 or more)
+> - There don't appear to be any missing values within the data, though in age and income there is an "Other" option
+> - The only obvious potential issue I see here is that the max BMI is 98, which seems high but I have no expertise in this area so I'll leave the values alone
+> - Everything else looks reasonable
 
-> Some notes
->
-> -   In the kraggle notes they say Diabetes_binary should have 3 levels (0 = no diabetes 1 = prediabetes 2 = diabetes), but there are no records with value = 2
-
-## Code for plots
-
+### Code for plots
 ```{r}
 #| eval: true
 #| warning: false
 
 # plot pairs
-#GGally::ggpairs(df, columns = c(1, 2, 3, 4)) 
-#GGally::ggpairs(df, columns = c(1, 5, 6, 7))
-#GGally::ggpairs(df, columns = c(1, 8, 9, 10))
-#GGally::ggpairs(df, columns = c(1, 11, 12, 13))
-#GGally::ggpairs(df, columns = c(1, 14, 15, 16))
-#GGally::ggpairs(df, columns = c(1, 17, 18, 19))
-# Mosts of these are ahrd to read and not very informative, use custom plots instead
+#GGally::ggpairs(df, columns = c(1, 2, 3, 4))  # Mosts of these are ahrd to read and not very informative, use custom plots instead
 
 # Define different variable types
 factor_vars_heatmap <- c(
@@ -270,8 +223,7 @@ generate_histogram_factor <- function(var) {
 
 ```
 
-## Generate plots
-
+### Generate plots
 ```{r}
 #| eval: true
 #| warning: false
@@ -288,13 +240,21 @@ for (var in factor_vars_histogram) {
 
 # Generate histograms and box-plots for numeric variables with log scale on x-axis
 for (var in numeric_vars) {
-  print(generate_histogram_numeric(var))
+  #print(generate_histogram_numeric(var))
   print(generate_boxplot_numeric(var))
 }
 
 ```
 
-> Based on the plots above, these are my main conclusions
+> Given the large number of potential predictors and many of them being categorical running all the pair plots is hard to interpret, so I'll focus on plotting predictors relationships with the response instead of with each other. Based on the plots above:
 >
-> -   The data looks complete and there are no obvious issues that pop out to me
-> -   Almost all the potential predictors look relevant, based on how either the heatmaps or plots are very lopsided/skewed depending on the factor levels
+> - In the boxplots we can see that having poor mental and physical health for prolonged periods of time seems to increase diabetes risk
+> - Higher BMI also seems to be indicative of higher diabetes risk as the distribution for pre-diabetes generally has larger related BMI values
+> - Lower income also seems to be associated wiht a much higher risk of diabetes as generally the higher the income the lower the proportion of diabetes
+> - Higher education level seems to be associated with lower diabetes risk based on the proportions
+> - Increased age also seems to lead to increased diabetes risk
+> - Having high blood pressure and high cholestoral seem to increase diabetes risk
+> - Low general health also seems to be associated with higher diabetes risk
+> - Overall there look to be a number of potentially strong predictors, but the most impactful seem to be MentHlth PhysHlth GenHlth BMI Income Education Age HighBP HighChol 
+
+
