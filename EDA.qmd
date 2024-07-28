@@ -257,4 +257,5 @@ for (var in numeric_vars) {
 > - Low general health also seems to be associated with higher diabetes risk
 > - Overall there look to be a number of potentially strong predictors, but the most impactful seem to be MentHlth PhysHlth GenHlth BMI Income Education Age HighBP HighChol 
 
+Click here for the modeling page: [Modeling Page](https://law5097.github.io/ST558_FinalProject/Modeling.html)
 

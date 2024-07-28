@@ -1,5 +1,6 @@
 ---
-title: "ST558 Final Project Modelling - Lee Worthington"
+title: "ST558 Final Project Modelling"
+subtitle: "Lee Worthington"
 format: 
   html:
     embed-resources: true
