@@ -4007,12 +4007,12 @@ vertical-align: -.125em;
 </ul>
 </blockquote>
 <blockquote class="blockquote">
-<p>Log loss</p>
+<p>Log loss explanation</p>
 <ul>
 <li>Log loss is a performance metric for evaluating the predictions of a binary classification model that takes on the following form</li>
 <li>Log Loss = - (1/N) * Σ [ y_i * log(p_i) + (1 - y_i) * log(1 - p_i) ]</li>
-<li>Where y_i is the true label, p_i is the predicted probability, and N is the number of instances.</li>
-<li>Since log loss considers probabilities of correct predictions, unlike something like accuracy, it’s more sensitive to imbalanced binary target variables as incorrect predictions will be more heavily penalized which encourages more balanced classification accuracy from the model</li>
+<li>Where y_i is the true label, p_i is the predicted probability, and N is the number of instances</li>
+<li>Since log loss considers probabilities of correct predictions, unlike something like accuracy, it’s more sensitive to imbalanced data as incorrect predictions will be more heavily penalized which encourages more balanced classification accuracy from the model</li>
 </ul>
 </blockquote>
 </section>
@@ -4124,9 +4124,9 @@ vertical-align: -.125em;
 <blockquote class="blockquote">
 <p>Explanation</p>
 <ul>
-<li>Logistic regression is a statistical method used for modeling a binary response variable that predicts the probability that an instance belongs to one of 2 classes</li>
+<li>Logistic regression is a GLM used for modeling a binary response variable that predicts the probability that an instance belongs to one of 2 classes</li>
 <li>The model generates a proability for a particular class, which is then used to assign a final prediction based base on a 0.5 threshold</li>
-<li>The model has the following form: Logit(p) = ln(p / (1 - p)) = β_0 + β_1 * x_1 + β_2 * x_2 + … + β_n * x_n</li>
+<li>The model has the form: Logit(p) = ln(p / (1 - p)) = β_0 + β_1 * x_1 + β_2 * x_2 + … + β_n * x_n</li>
 <li>Where p is the probability of the positive class, β_0 is the intercept, β_1, β_2, …, β_n are the coefficients, and x_1, x_2, …, x_n are the predictor variables</li>
 <li>The logit function is used to map the predicted values to a range between 0 and 1</li>
 </ul>
@@ -4653,10 +4653,10 @@ Resampling results:
 <blockquote class="blockquote">
 <p>Explanation</p>
 <ul>
-<li>Classification trees are a non-parametric supervised method used for classifying instances into classes</li>
-<li>The model splits the data into subsets based by splitting on predictors in a way that minimizes your target metric at each split, in a greedy manner</li>
+<li>Classification trees are a non-parametric supervised model used for classifying records into classes</li>
+<li>The model splits the data into subsets based by splitting on predictors in a way that minimizes your target metric at each split in a greedy manner</li>
 <li>This splitting continues until a predefined point or some threshold set by the user is met such as a mximum depth or minimum node observations</li>
-<li>In classification the final prediction is based on the mode in the final node of one of the tree paths</li>
+<li>In classification the final prediction is based on the most frequently occurring class in the final node of one of the tree paths</li>
 <li>Trees are helpful when your data potentially has complex interactions and/or is non-linear, they are also generally pretty easy to interpret depending on how complex they are</li>
 </ul>
 </blockquote>
@@ -4810,8 +4810,8 @@ The final value used for the model was cp = 0.001.</code></pre>
 <blockquote class="blockquote">
 <p>Explanation</p>
 <ul>
-<li>Random forest is an ensemble learning method that builds multiple decision trees and takes the mode or mean of the ensemble of trees to make a final prediction</li>
-<li>Each tree in the forest is trained on a bootstrap sample (random sample with replacement of size n) and random subset of predictors</li>
+<li>Random forest is an ensemble learning model that builds multiple decision trees and takes the mode or mean of the ensemble of trees to make a final prediction</li>
+<li>Each tree in the forest is trained on a bootstrap sample (random sample with replacement of size n) and a random subset of predictors</li>
 <li>The process for fitting each tree is the same as in the basic classification tree outlined above</li>
 <li>The main advantages of this approach is that it prevents overfitting while decreasing variance in predictions by aggregating the predictions from multiple trees, instead of a single tree</li>
 </ul>
@@ -5012,7 +5012,7 @@ Prediction     N     Y
 <li>On the test set in terms of logloss and accuracy these are all very similar, though none of them label the minority class particularly well</li>
 <li>Overall the logistic regression model has the lowest logloss and also does slightly better than the other models labelling the minority class</li>
 <li>The logistic regression model is also the easiest to fit in terms of computational cost</li>
-<li>So in this case I’ll use the logistic model as the final model</li>
+<li>Given this I’ll use the logistic model as the final model due to it’s performance and lower computational cost</li>
 </ul>
 </blockquote>
 

@@ -10,21 +10,24 @@ editor_options:
 ---
 
 ## Intro
+
 > In this file using the diabetes dataset described in the EDA I'll fit a series of models attempting to predict the Diabetes_Binary field using log loss as the evaluation metric, models built here include:
 >
-> - 3 different logistic regression models
-> - 1 classification tree
-> - 1 random forest
+> -   3 different logistic regression models
+> -   1 classification tree
+> -   1 random forest
 
-> Log loss
+> Log loss explanation
 >
-> - Log loss is a performance metric for evaluating the predictions of a binary classification model that takes on the following form
-> - Log Loss = - (1/N) * Σ [ y_i * log(p_i) + (1 - y_i) * log(1 - p_i) ]
-> - Where y_i is the true label, p_i is the predicted probability, and N is the number of instances.
-> - Since log loss considers probabilities of correct predictions, unlike something like accuracy, it's more sensitive to imbalanced binary target variables as incorrect predictions will be more heavily penalized which encourages more balanced classification accuracy from the model
+> -   Log loss is a performance metric for evaluating the predictions of a binary classification model that takes on the following form
+> -   Log Loss = - (1/N) \* Σ \[ y_i \* log(p_i) + (1 - y_i) \* log(1 - p_i) \]
+> -   Where y_i is the true label, p_i is the predicted probability, and N is the number of instances
+> -   Since log loss considers probabilities of correct predictions, unlike something like accuracy, it's more sensitive to imbalanced data as incorrect predictions will be more heavily penalized which encourages more balanced classification accuracy from the model
 
 ## Setup environment and read data
+
 ### Load libraries, set seed
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -50,6 +53,7 @@ set.seed(1)
 ```
 
 ### Get data
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -63,6 +67,7 @@ input_data <- read_csv(
 ```
 
 ### Set data types and levels where needed
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -123,15 +128,17 @@ summary(test_data$Diabetes_binary) # good
 ```
 
 ## Logistic Regression Models
+
 > Explanation
 >
-> - Logistic regression is a statistical method used for modeling a binary response variable that predicts the probability that an instance belongs to one of 2 classes
-> - The model generates a proability for a particular class, which is then used to assign a final prediction based base on a 0.5 threshold
-> - The model has the following form: Logit(p) = ln(p / (1 - p)) = β_0 + β_1 * x_1 + β_2 * x_2 + ... + β_n * x_n
-> - Where p is the probability of the positive class, β_0 is the intercept, β_1, β_2, ..., β_n are the coefficients, and x_1, x_2, ..., x_n are the predictor variables
-> - The logit function is used to map the predicted values to a range between 0 and 1
+> -   Logistic regression is a GLM used for modeling a binary response variable that predicts the probability that an instance belongs to one of 2 classes
+> -   The model generates a proability for a particular class, which is then used to assign a final prediction based base on a 0.5 threshold
+> -   The model has the form: Logit(p) = ln(p / (1 - p)) = β_0 + β_1 \* x_1 + β_2 \* x_2 + ... + β_n \* x_n
+> -   Where p is the probability of the positive class, β_0 is the intercept, β_1, β_2, ..., β_n are the coefficients, and x_1, x_2, ..., x_n are the predictor variables
+> -   The logit function is used to map the predicted values to a range between 0 and 1
 
 ### Model with all main effects
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -163,6 +170,7 @@ logistic_model_all_main # logloss 0.3170608
 ```
 
 ### Model with only the main effects of predictors that looked impactful from EDA and the full model above
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -196,6 +204,7 @@ logistic_model_sig_main # logloss 0.3204551
 ```
 
 ### Model with the subset of predictors and their interactions
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -228,6 +237,7 @@ summary(logistic_model_sig_main_interaction) # logLoss 0.3194338
 ```
 
 ### Final model fit (all main effects)
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -238,19 +248,21 @@ logistic_model <- logistic_model_all_main
 # Print training model fit
 logistic_model
 ```
+
 > Logistic regression results
 >
-> - Overall the model with all of the main effects has the best performance in terms of minimizing logloss with a value of logloss 0.3170608, so I'll use the full model as the final model
-> - That being said the model with only a subset of the predictors is very close in terms of performance and slightly simpler 
+> -   Overall the model with all of the main effects has the best performance in terms of minimizing logloss with a value of logloss 0.3170608, so I'll use the full model as the final model
+> -   That being said the model with only a subset of the predictors is very close in terms of performance and slightly simpler
 
 ## Classification Tree
+
 > Explanation
 >
-> - Classification trees are a non-parametric supervised method used for classifying instances into classes
-> - The model splits the data into subsets based by splitting on predictors in a way that minimizes your target metric at each split, in a greedy manner
-> - This splitting continues until a predefined point or some threshold set by the user is met such as a mximum depth or minimum node observations
-> - In classification the final prediction is based on the mode in the final node of one of the tree paths
-> - Trees are helpful when your data potentially has complex interactions and/or is non-linear, they are also generally pretty easy to interpret depending on how complex they are
+> -   Classification trees are a non-parametric supervised model used for classifying records into classes
+> -   The model splits the data into subsets based by splitting on predictors in a way that minimizes your target metric at each split in a greedy manner
+> -   This splitting continues until a predefined point or some threshold set by the user is met such as a mximum depth or minimum node observations
+> -   In classification the final prediction is based on the most frequently occurring class in the final node of one of the tree paths
+> -   Trees are helpful when your data potentially has complex interactions and/or is non-linear, they are also generally pretty easy to interpret depending on how complex they are
 
 ```{r}
 #| eval: false
@@ -287,12 +299,13 @@ tree_model # logloss 0.3565012
 ```
 
 ## Random Forest
+
 > Explanation
 >
-> - Random forest is an ensemble learning method that builds multiple decision trees and takes the mode or mean of the ensemble of trees to make a final prediction
-> - Each tree in the forest is trained on a bootstrap sample (random sample with replacement of size n) and random subset of predictors
-> - The process for fitting each tree is the same as in the basic classification tree outlined above
-> - The main advantages of this approach is that it prevents overfitting while decreasing variance in predictions by aggregating the predictions from multiple trees, instead of a single tree
+> -   Random forest is an ensemble learning model that builds multiple decision trees and takes the mode or mean of the ensemble of trees to make a final prediction
+> -   Each tree in the forest is trained on a bootstrap sample (random sample with replacement of size n) and a random subset of predictors
+> -   The process for fitting each tree is the same as in the basic classification tree outlined above
+> -   The main advantages of this approach is that it prevents overfitting while decreasing variance in predictions by aggregating the predictions from multiple trees, instead of a single tree
 
 ```{r}
 #| eval: false
@@ -333,6 +346,7 @@ random_forest_model # logloss 0.3294950
 ```
 
 ## Test data performance comparison
+
 ```{r}
 #| eval: true
 #| warning: false
@@ -376,7 +390,7 @@ print(confusionMatrix(review_data$Diabetes_rf, review_data$Diabetes_binary))
 
 > Model comparison
 >
-> - On the test set in terms of logloss and accuracy these are all very similar, though none of them label the minority class particularly well
-> - Overall the logistic regression model has the lowest logloss and also does slightly better than the other models labelling the minority class
-> - The logistic regression model is also the easiest to fit in terms of computational cost
-> - So in this case I'll use the logistic model as the final model
+> -   On the test set in terms of logloss and accuracy these are all very similar, though none of them label the minority class particularly well
+> -   Overall the logistic regression model has the lowest logloss and also does slightly better than the other models labelling the minority class
+> -   The logistic regression model is also the easiest to fit in terms of computational cost
+> -   Given this I'll use the logistic model as the final model due to it's performance and lower computational cost
