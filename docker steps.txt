@@ -11,6 +11,12 @@ Show files in wd
 Build image
     docker build -t st558_final .
 
+confirm image is created
+    docker images
+
+Prune unammed images
+    docker image prune
+
 Run image
     docker run --rm -p 8000:8000 st558_final
 
@@ -32,33 +38,12 @@ confirm image is loaded
 run the image
     docker run --rm -p 8000:8000 st558_final
 
+Copy and paste this into browser
+    http://127.0.0.1:8000/__docs__/
+
+Test URLs
+http://localhost:8000/pred?HighBP=Y&HighChol=N&CholCheck=Y&BMI=30&Smoker=Y&Stroke=N&HeartDiseaseorAttack=N&PhysActivity=Y&Fruits=Y&Veggies=Y&HvyAlcoholConsump=N&AnyHealthcare=Y&NoDocbcCost=N&GenHlth=Good&MentHlth=0&PhysHlth=0&DiffWalk=N&Sex=M&Age=40-44&Education=College%20Grad&Income=%3E$75k
+http://localhost:8000/pred?HighBP=N&HighChol=N&CholCheck=Y&BMI=25&Smoker=N&Stroke=N&HeartDiseaseorAttack=N&PhysActivity=Y&Fruits=Y&Veggies=Y&HvyAlcoholConsump=N&AnyHealthcare=Y&NoDocbcCost=N&GenHlth=VGood&MentHlth=0&PhysHlth=0&DiffWalk=N&Sex=F&Age=30-34&Education=Some%20College&Income=$35-50k
+http://localhost:8000/pred?HighBP=Y&HighChol=Y&CholCheck=Y&BMI=35&Smoker=Y&Stroke=Y&HeartDiseaseorAttack=Y&PhysActivity=N&Fruits=N&Veggies=N&HvyAlcoholConsump=Y&AnyHealthcare=Y&NoDocbcCost=Y&GenHlth=Poor&MentHlth=30&PhysHlth=30&DiffWalk=Y&Sex=M&Age=60-64&Education=HS%20Grad&Income=$10-15k
 
 
-
-
-
-
-
-
--------------------------------------------
-# Use the official R base image
-FROM rocker/r-ver:4.2.2
-
-# Install the Linux libraries needed for plumber
-RUN apt-get update -qq && apt-get install -y libssl-dev libcurl4-gnutls-dev libpng-dev
-
-# Install R packages not included in r-base
-RUN R -e "install.packages(c('plumber', 'tidyverse', 'caret', 'ranger', 'Metrics'))"
-
-# Set the working directory
-WORKDIR /app
-
-# Copy API.R and the dataset into the Docker image
-COPY API.R /app/API.R
-COPY diabetes_binary_health_indicators_BRFSS2015.csv /app/diabetes_binary_health_indicators_BRFSS2015.csv
-
-# Expose port 8000
-EXPOSE 8000
-
-# Run the API locally at port 8000
-ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/app/API.R'); pr$run(host = '0.0.0.0', port = 8000)"]
